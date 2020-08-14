@@ -5,8 +5,11 @@ from time import sleep
 
 import utils as ut
 
-model = cv2.face.LBPHFaceRecognizer_create()
-model.read(r'model.yml')
+try:
+    model.read(r'model.yml')
+    model = cv2.face.LBPHFaceRecognizer_create()
+except Exception as e:
+    model = None
 
 video = cv2.VideoCapture(0)
 
@@ -22,7 +25,10 @@ while True:
         (x, y, w, h) = face
 
         face_gray = gray_img[y:y+w, x:x+h]
-        label, confidence = model.predict(face_gray)
+        if model is None:
+            label, confidence = ("Unknown", 1)
+        else:
+            label, confidence = model.predict(face_gray)
         name = names.get(label, str(label))
         print("label: {}, confidence: {}".
               format(name, confidence))
